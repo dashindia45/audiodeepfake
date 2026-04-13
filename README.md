@@ -179,7 +179,7 @@ This project uses the **ASVspoof 2019 Logical Access (LA)** dataset.
 
 ### 🔽 Download Dataset
 
-Download the dataset from the official source .
+Download the dataset from the official source https://www.kaggle.com/datasets/awsaf49/asvpoof-2019-dataset?select=LA .
 
 After downloading, place it in the project directory as:
 
