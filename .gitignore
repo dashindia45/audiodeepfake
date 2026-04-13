@@ -1,0 +1,17 @@
+# Raw dataset
+LA/
+
+# Processed data
+data/
+
+# Ignore virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Outputs (optional but recommended)
+models/
+features/
+results/

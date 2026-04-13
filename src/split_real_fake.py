@@ -1,9 +1,9 @@
 import os
 import shutil
 
-# =====================================================
+
 # Dataset Root Folder
-# =====================================================
+
 
 DATASET_ROOT = "../LA"
 PROTOCOL_DIR = os.path.join(DATASET_ROOT, "ASVspoof2019_LA_cm_protocols")
@@ -48,9 +48,9 @@ def split_dataset(split_name, protocol_file):
     print(f"✅ {split_name} split completed")
 
 
-# =====================================================
-# Run Splitting
-# =====================================================
+
+# Splitting
+
 
 split_dataset(
     "train",

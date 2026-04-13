@@ -3,9 +3,6 @@ import soundfile as sf
 import os
 
 
-# =====================================================
-# Function: Preprocess a folder of audio files
-# =====================================================
 # What it does:
 # - Loads audio
 # - Resamples to 16kHz
@@ -16,7 +13,7 @@ import os
 # Why:
 # - Ensures consistent audio format for feature extraction
 # - Removes variation caused by sampling rate differences
-# =====================================================
+
 
 def preprocess_folder(input_dir, output_dir):
 
@@ -49,11 +46,8 @@ def preprocess_folder(input_dir, output_dir):
     print(f"Processed files saved to {output_dir}")
 
 
-# =====================================================
 # Function: Preprocess one dataset split
-# =====================================================
 # This keeps train/dev/eval separated
-# =====================================================
 
 def preprocess_split(split):
 
@@ -68,9 +62,6 @@ def preprocess_split(split):
     )
 
 
-# =====================================================
-# Main Execution
-# =====================================================
 
 if __name__ == "__main__":
 

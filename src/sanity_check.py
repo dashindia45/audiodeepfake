@@ -2,16 +2,12 @@ import os
 import librosa
 import numpy as np
 
-
-# =====================================================
-# Function: Analyze audio folder
-# =====================================================
 # This checks:
 # - number of files
 # - mean duration
 # - duration variance
 # - corrupted / short files
-# =====================================================
+
 
 def analyze_folder(folder):
 
@@ -43,9 +39,9 @@ def analyze_folder(folder):
     return np.mean(durations), np.std(durations), bad_files, len(durations)
 
 
-# =====================================================
+
 # Function: Run sanity check for a dataset split
-# =====================================================
+
 
 def sanity_check_split(split):
 
@@ -71,10 +67,6 @@ def sanity_check_split(split):
     print("Std duration:", round(fake_std, 2), "sec")
     print("Bad/short files:", fake_bad)
 
-
-# =====================================================
-# Main Execution
-# =====================================================
 
 if __name__ == "__main__":
 

@@ -6,10 +6,8 @@ MIN_DURATION = 1.0
 
 DATA_ROOT = "../data/processed"
 
-
-# =====================================================
 # Function: Validate folder without deleting files
-# =====================================================
+
 def validate_folder(folder):
 
     skipped = 0
@@ -38,9 +36,8 @@ def validate_folder(folder):
     return total, skipped, corrupted
 
 
-# =====================================================
 # Function: Validate dataset split
-# =====================================================
+
 def validate_split(split):
 
     print("\n" + "=" * 50)
@@ -63,10 +60,6 @@ def validate_split(split):
     print("Short (<1s):", f_skip)
     print("Corrupted:", f_corrupt)
 
-
-# =====================================================
-# Main execution
-# =====================================================
 if __name__ == "__main__":
 
     validate_split("train")

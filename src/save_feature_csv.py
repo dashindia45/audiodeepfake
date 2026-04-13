@@ -1,117 +1,129 @@
+
 import os
 import csv
 from feature_extraction import extract_features
+from tqdm import tqdm  
+
+# =====================================================
+# PATH CONFIG
+# =====================================================
 
 DATA_ROOT = "../data/processed"
 FEATURE_ROOT = "../features"
 
 os.makedirs(FEATURE_ROOT, exist_ok=True)
 
-
 # =====================================================
-# Header Definition
+# HEADER
 # =====================================================
 
-header = [
-    "label",
+header = ["label"]
 
-    # Physiology
-    "breath_count",
-    "mean_breath_duration",
-    "var_breath_duration",
-    "var_breath_interval",
-    "breath_interval_entropy",
-    "pause_count",
-    "mean_pause_duration",
-    "long_pause_ratio",
-    "mean_speech_after_breath",
-    "breath_speech_alignment",
-]
+header += ["breath_count", "pause_count"]
 
-# MFCC Mean (13)
-for i in range(13):
-    header.append(f"spec_mfcc{i+1}_mean")
+for i in range(20):
+    header.append(f"mfcc_{i+1}_mean")
+for i in range(20):
+    header.append(f"mfcc_{i+1}_std")
 
-# MFCC Std (13)
-for i in range(13):
-    header.append(f"spec_mfcc{i+1}_std")
+for i in range(20):
+    header.append(f"delta_{i+1}_mean")
+for i in range(20):
+    header.append(f"delta_{i+1}_std")
 
-# Spectral Stats
+for i in range(20):
+    header.append(f"delta2_{i+1}_mean")
+for i in range(20):
+    header.append(f"delta2_{i+1}_std")
+
 header += [
-    "spec_centroid_mean",
-    "spec_centroid_std",
-    "spec_rolloff_mean",
-    "spec_rolloff_std",
-    "spec_flatness_mean",
-    "spec_flatness_std"
+    "centroid_mean", "centroid_std",
+    "bandwidth_mean", "bandwidth_std"
 ]
 
+for i in range(7):
+    header.append(f"contrast_{i+1}")
+
+for i in range(12):
+    header.append(f"chroma_{i+1}")
+
+header += ["zcr_mean", "zcr_std", "energy_entropy"]
+
+EXPECTED_FEATURE_LEN = len(header) - 1
+print(f"✅ Expected feature length: {EXPECTED_FEATURE_LEN}")
 
 # =====================================================
-# Function to process one dataset split
+# PROCESS FUNCTION
 # =====================================================
 
 def process_split(split):
 
-    REAL_DIR = os.path.join(DATA_ROOT, split, "real")
-    FAKE_DIR = os.path.join(DATA_ROOT, split, "fake")
+    real_dir = os.path.join(DATA_ROOT, split, "real")
+    fake_dir = os.path.join(DATA_ROOT, split, "fake")
 
-    OUTPUT_CSV = os.path.join(FEATURE_ROOT, f"features_{split}.csv")
+    output_csv = os.path.join(FEATURE_ROOT, f"featurenew_{split}.csv")
 
     processed = 0
     skipped = 0
 
-    with open(OUTPUT_CSV, "w", newline="") as f:
+    # ✅ Combine all files with labels
+    all_files = []
+
+    for f in os.listdir(real_dir):
+        if f.endswith(".wav"):
+            all_files.append((os.path.join(real_dir, f), "real"))
+
+    for f in os.listdir(fake_dir):
+        if f.endswith(".wav"):
+            all_files.append((os.path.join(fake_dir, f), "fake"))
+
+    print(f"\n📦 {split.upper()} → Total files: {len(all_files)}")
+
+    with open(output_csv, "w", newline="") as f:
 
         writer = csv.writer(f)
         writer.writerow(header)
 
-        # REAL samples
-        for file in os.listdir(REAL_DIR):
+        # ✅ SINGLE CLEAN PROGRESS BAR
+        for path, label in tqdm(
+            all_files,
+            desc=f"{split.upper()} Processing",
+            unit="file",
+            ncols=100
+        ):
 
-            if file.endswith(".wav"):
+            feats = extract_features(path)
 
-                path = os.path.join(REAL_DIR, file)
+            # 🔥 DEBUG
+            if feats is None:
+                print(f"\n⚠️ Skipped (None): {path}")
+                skipped += 1
+                continue
 
-                feats = extract_features(path)
+            if len(feats) != EXPECTED_FEATURE_LEN:
+                print(f"\n⚠️ Skipped (Length Mismatch): {path}")
+                print(f"   Got: {len(feats)}, Expected: {EXPECTED_FEATURE_LEN}")
+                skipped += 1
+                continue
 
-                if feats is None:
-                    skipped += 1
-                    continue
+            writer.writerow([label] + feats.tolist())
+            processed += 1
 
-                writer.writerow(["real"] + feats)
-                processed += 1
-
-        # FAKE samples
-        for file in os.listdir(FAKE_DIR):
-
-            if file.endswith(".wav"):
-
-                path = os.path.join(FAKE_DIR, file)
-
-                feats = extract_features(path)
-
-                if feats is None:
-                    skipped += 1
-                    continue
-
-                writer.writerow(["fake"] + feats)
-                processed += 1
-
-    print(f"\nSaved features for {split}")
-    print("Output:", OUTPUT_CSV)
-    print("Processed:", processed)
-    print("Skipped short files:", skipped)
-
+    print(f"\n📊 Split: {split}")
+    print(f"Saved → {output_csv}")
+    print(f"Processed: {processed}")
+    print(f"Skipped: {skipped}")
 
 # =====================================================
-# Run for train/dev/eval
+# MAIN
 # =====================================================
 
 if __name__ == "__main__":
+
+    print("\n🚀 Starting Feature Extraction Pipeline...\n")
 
     process_split("train")
     process_split("dev")
     process_split("eval")
 
-    print("\n✅ Hybrid Features saved successfully")
+    print("\n✅ All feature files generated successfully!")
